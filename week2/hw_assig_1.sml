@@ -2,11 +2,11 @@
 
 
 fun is_older(date1 : (int * int * int), date2 : (int * int * int)) =
-	 if (#1 date1 > #1 date2) andalso
-	    (#2 date1 > #2 date2) andalso
-	    (#3 date1 > #3 date2)
-	 then true
-	 else false
+    if #1 date1 <> #1 date2
+    then #1 date1 < #1 date2
+    else if (#2 date1 <> #2 date2)
+    then #2 date1 < #2 date2
+    else #3 date1 < #3 date2	     
 		      
 			  
 fun number_in_month( date_list : (int * int * int) list, a_month : int) =
@@ -52,33 +52,41 @@ fun date_to_string (date : (int * int * int)) =
 	month_str^" "^date_num^", "^year_num
     end
 
-fun number_before_reaching_sum( lst : int list, sum : int) =
+fun number_before_reaching_sum(sum : int ,lst : int list) =
     if sum <= 0
     then ~1
-    else 1 + number_before_reaching_sum((tl lst), sum - (hd lst))
+    else 1 + number_before_reaching_sum( sum - (hd lst) ,(tl lst))
 				       
 	
 fun what_month(day: int) =
     let
 	val days = [31,28,31,30,31,30,31,31,30,31,30,31]
     in
-	number_before_reaching_sum(days, day) +1
+	number_before_reaching_sum(day, days) +1
     end
 
 fun month_range(day1 : int, day2 : int) =
     if day1 > day2
     then []
-    else what_month(day1) :: month_range(day1+1, day2)	
-											    		
-fun get_nth1(names : string list, month : int) =
-    let
-	fun cnt_string(counter: int) =
-	    if counter = 1
-	    then (hd names)
-	    else ( (tl names);
-	       cnt_string(counter -1)
-	     )
-    in
-	cnt_string month
-    end
-	
+    else what_month(day1) :: month_range(day1+1, day2)
+
+fun oldest(dates : (int * int * int) list) =
+    if null dates
+    then NONE
+    else
+	let
+	    fun sort_date(dates : (int*int*int) list) =
+		if null (tl dates)
+		then hd dates
+		else
+		    let
+			val oldest_date = sort_date(tl dates)
+			val current_date = hd dates
+		    in
+			if is_older(current_date, oldest_date)
+			 then current_date
+			else oldest_date
+		    end
+	in
+	    SOME(sort_date dates)
+	end
